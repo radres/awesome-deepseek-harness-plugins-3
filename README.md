@@ -59,7 +59,6 @@ dsh web            # http://127.0.0.1:3080
 ```
 
 ## Official built-in plugins
-- [dhicoc/dsh-reverse-skill](https://github.com/dhicoc/dsh-reverse-skill) - Complete reverse-skill pack (85 SKILL.md) as a DeepSeek Harness Cordis plugin: reverse engineering, authorized pentesting and security-research skill router.
 
 **中文**：框架本体在 `@deepseek-ai/dsh-*` 这个 npm scope 下自带约 50 个内部插件包，是所有社区插件的参考实现与"接缝"底座（llm / shell / fs / web / subagent / plan / sandbox / hooks / skill …）。
 
@@ -180,6 +179,7 @@ Everything below is community-built and sits on top of these seams.
 - [PerryLink/dsh-industry-research](https://github.com/PerryLink/dsh-industry-research) (★138) — Industry and company research pack: chain mapping, policy and news tracking, research cards and auditable reports.
 - [PerryLink/dsh-research-report](https://github.com/PerryLink/dsh-research-report) (★134) — Verifiable research reports: a content-addressed evidence ledger binds every claim to a snapshot.
 - [PerryLink/dsh-skill-pack-security](https://github.com/PerryLink/dsh-skill-pack-security) (★13) — Security-audit skill pack plus the plugin_vet supply-chain scanner: secret scan, dependency audit and prompt-injection review.
+- [dhicoc/dsh-reverse-skill](https://github.com/dhicoc/dsh-reverse-skill) (★246) — Reverse-skill pack (88 SKILL.md) packaged as a DeepSeek Harness Cordis plugin: reverse engineering, authorized pentesting and security-research skill router.
 - [weibaohui/dsh-dashboard](https://github.com/weibaohui/dsh-dashboard) (★0) — Usage dashboard: offline-scans session logs to chart daily/weekly/monthly tokens, estimated costs, model/tool/skill/command leaderboards, output speed, working hours and quality metrics; gridstack+ECharts cards are drag-and-drop composable, with custom formulas and AI arrangement (prompt round-trip import).
 - [siweina/dsh-novel-writer](https://github.com/siweina/dsh-novel-writer) (★18) — A local workbench for Chinese web-novel writers: a pre-draft chapter brief gathers the previous hand-off, outline, character cards, unresolved plot threads and language rules; after drafting, a six-dimension prose baseline drives a quantified self-check and a prioritised revision plan with original line numbers; across chapters it reports plot-thread spans, characters missing too long and outline drift. All analysis runs on a bundled 24MB Chinese model on-device — zero API cost, the manuscript never leaves the machine; 18 tools, also shipped as an MCP server for Claude Desktop / Cursor.
 - [mubaid/dsh-fluent-korean](https://github.com/mubaid/dsh-fluent-korean) (★0) — Switchable Korean output styles: the plugin registers its own system-prompt section asking the model for natural Korean prose, with a second style that drops the coding guidance. The rules are snflkd/fluent-korean, carried over byte-identically under MIT. Install: `dsh plugin add mubaid/dsh-fluent-korean`.
