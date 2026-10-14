@@ -8,9 +8,19 @@ name: Review plugin submission
 # fork PRs. It deliberately NEVER checks out or executes PR code — the review
 # script (scripts/review_pr.py, taken from the trusted BASE branch) only reads
 # the PR's README.md at the head SHA via the GitHub API.
+#
+# `workflow_dispatch` lets a maintainer re-run the review on an already-open PR
+# (pull_request_target only fires on opened/edited/synchronize/reopened, so PRs
+# opened before this workflow existed would otherwise never be reviewed).
 on:
   pull_request_target:
     types: [opened, edited, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number to review"
+        required: true
+        type: number
 
 permissions:
   contents: write
@@ -25,12 +35,29 @@ jobs:
         with:
           python-version: "3.12"
 
+      # The label step below silently no-ops if a label does not exist, so make
+      # sure they are all present first.
+      - name: Ensure labels exist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create auto-approved     --color 0e8a16 --description "Passed the rule-based review" 2>/dev/null || true
+          gh label create changes-requested --color d93f0b --description "Fails the rule-based review"  2>/dev/null || true
+          gh label create needs-review      --color fbca04 --description "Needs a human look"           2>/dev/null || true
+
+      - name: Resolve PR number
+        id: pr
+        env:
+          EVENT_PR: ${{ github.event.pull_request.number }}
+          INPUT_PR: ${{ inputs.pr }}
+        run: echo "number=${EVENT_PR:-$INPUT_PR}" >> "$GITHUB_OUTPUT"
+
       - name: Run rule-based review
         id: review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
         run: |
           python scripts/review_pr.py | tee review_report.md
           echo "pass=$(python -c "import json;print(str(json.load(open('review_result.json'))['pass']).lower())")" >> "$GITHUB_OUTPUT"
@@ -38,7 +65,7 @@ jobs:
       - name: Post / update PR comment
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
+          PR: ${{ steps.pr.outputs.number }}
           REPO: ${{ github.repository }}
         run: |
           # remove previous bot comments for this PR, then post a fresh one
@@ -52,7 +79,7 @@ jobs:
       - name: Apply labels
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
+          PR: ${{ steps.pr.outputs.number }}
           REPO: ${{ github.repository }}
         run: |
           LABELS=$(python -c "import json;print(' '.join(json.load(open('review_result.json'))['labels']))")
@@ -67,7 +94,7 @@ jobs:
         if: ${{ fromJSON(steps.review.outputs.pass || 'false') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
+          PR: ${{ steps.pr.outputs.number }}
         run: |
           gh pr merge "$PR" --squash --delete-branch=false \
             || echo "auto-merge was blocked (branch not up-to-date or protected); a maintainer can merge manually."
