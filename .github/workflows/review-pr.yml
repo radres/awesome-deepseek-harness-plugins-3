@@ -25,6 +25,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write          # labels + PR comments go through the issues endpoints
 
 jobs:
   review:
